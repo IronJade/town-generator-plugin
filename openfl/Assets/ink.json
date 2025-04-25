@@ -1,0 +1,12 @@
+{
+  "colorPaper": "#CCCAC2",
+  "colorLight": "#9A979B",
+  "colorMedium": "#6C6974",
+  "colorDark": "#130F26",
+  "colorRoof": "#9A979B",
+  "colorWater": "#6C6974",
+  "colorGreen": "#6C6974",
+  "colorRoad": "#CCCAC2",
+  "tintMethod": "Brightness",
+  "tintStrength": "40"
+}

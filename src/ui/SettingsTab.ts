@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import TownGeneratorPlugin from '../../main';
+import TownGeneratorPlugin from '../main';
 
 export class TownGeneratorSettingsTab extends PluginSettingTab {
     plugin: TownGeneratorPlugin;

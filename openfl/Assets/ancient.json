@@ -1,0 +1,12 @@
+{
+  "colorPaper": "#CCC5A3",
+  "colorLight": "#A69974",
+  "colorMedium": "#806F4D",
+  "colorDark": "#342414",
+  "colorRoof": "#A69974",
+  "colorWater": "#806F4D",
+  "colorGreen": "#806F4D",
+  "colorRoad": "#CCC5A3",
+  "tintMethod": "Overlay",
+  "tintStrength": "30"
+}

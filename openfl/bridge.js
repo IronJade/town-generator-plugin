@@ -99,3 +99,21 @@
         }
     };
 })();
+
+window.addEventListener('error', function(event) {
+    // Check if the error is related to asset loading
+    if (event.target && event.target.tagName === 'IMG' || 
+        (event.message && event.message.includes('Failed to load resource'))) {
+        console.error('Asset loading error:', event);
+        
+        // Notify the plugin about the error
+        parent.postMessage({ 
+            type: 'generationError',
+            error: 'Failed to load required assets. Please check the plugin installation.'
+        }, '*');
+    }
+});
+
+window.FALLBACK_ASSETS = {
+    'words.txt': 'town,village,city,hamlet'
+};

@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, TFile, Menu, Notice } from 'obsidian';
-import TownGeneratorPlugin from '../../main';
+import TownGeneratorPlugin from '../main';
 
 export const VIEW_TYPE_TOWN_GENERATOR = 'town-generator-view';
 
@@ -98,9 +98,17 @@ export class TownGeneratorView extends ItemView {
                 }
                 break;
                 
-            case 'generationError':
-                this.loadingEl.style.display = 'none';
-                new Notice('Error generating town: ' + data.error);
+                case 'generationError':
+                    console.error("Generation error:", data.error);
+                    this.loadingEl.style.display = 'none';
+                    this.loadingEl.innerHTML = `
+                        <div style="color: red; text-align: center; padding: 20px;">
+                            <h3>Error Loading Generator</h3>
+                            <p>${data.error}</p>
+                            <p>Try restarting Obsidian or reinstalling the plugin.</p>
+                        </div>
+                    `;
+                    new Notice('Error generating town: ' + data.error);
                 break;
         }
     }
