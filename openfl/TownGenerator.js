@@ -96170,3 +96170,136 @@ if(typeof define == "function" && define.__amd) {
 	define.amd = define.__amd;
 	delete define.__amd;
 }
+
+(function() {
+    // Wait for OpenFL to fully initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // We'll try to find the town generator in window.lime.app
+        // If it's elsewhere, you'll need to adjust this
+        const checkInterval = setInterval(function() {
+            if (window.lime && window.lime.app) {
+                clearInterval(checkInterval);
+                setupTownGeneratorHooks();
+            }
+        }, 100);
+    });
+    
+    function setupTownGeneratorHooks() {
+        const app = window.lime.app;
+        
+        // Store original functions
+        const originalGenerateFunction = app.generateTown || app.generate;
+        const originalExportFunction = app.exportImage || app.getMapAsImage;
+        
+        // Override the generate function
+        if (originalGenerateFunction) {
+            app.generateTown = function(size, seed) {
+                // Call the original function
+                const result = originalGenerateFunction.call(app, size, seed);
+                
+                try {
+                    // Capture the town data
+                    const townData = captureTownData();
+                    
+                    // Capture the town image
+                    const imageData = captureMapImage();
+                    
+                    // Send data back to Obsidian via the bridge
+                    if (window.ObsidianBridge) {
+                        window.ObsidianBridge.notifyTownGenerated(townData, imageData);
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error("Error capturing town data:", error);
+                    if (window.ObsidianBridge) {
+                        window.ObsidianBridge.notifyError(error.message);
+                    }
+                    return result;
+                }
+            };
+        }
+        
+        // Add setter methods if they don't exist
+        if (!app.setSeed) {
+            app.setSeed = function(seed) {
+                app.seed = seed;
+                // You might need to modify this based on how seeds are handled in the original code
+            };
+        }
+        
+        if (!app.setSize) {
+            app.setSize = function(size) {
+                app.size = size;
+                // You might need to modify this based on how size is handled in the original code
+            };
+        }
+        
+        if (!app.setShowLabels) {
+            app.setShowLabels = function(showLabels) {
+                app.showLabels = showLabels;
+                // You might need to modify this based on how labels are handled in the original code
+            };
+        }
+        
+        if (!app.setPalette) {
+            app.setPalette = function(palette) {
+                app.palette = palette;
+                // You might need to modify this based on how palette is handled in the original code
+            };
+        }
+        
+        // Expose the hooks directly for the Obsidian plugin to call
+        window.generateTownForObsidian = function(size, seed, showLabels, palette) {
+            if (app.setSeed) app.setSeed(seed);
+            if (app.setSize) app.setSize(size);
+            if (app.setShowLabels) app.setShowLabels(showLabels);
+            if (app.setPalette) app.setPalette(palette);
+            
+            // Call the modified generateTown function
+            if (app.generateTown) {
+                return app.generateTown(size, seed);
+            }
+            
+            // Fallback if no generate function was found
+            return null;
+        };
+    }
+    
+    // Helper function to capture town data
+    function captureTownData() {
+        const app = window.lime.app;
+        
+        // This is a placeholder - you'll need to inspect the actual OpenFL app
+        // to determine how to extract the town data
+        const townData = {
+            districts: {}
+        };
+        
+        // Example extracting district data (this is hypothetical)
+        if (app.districts) {
+            for (const district of app.districts) {
+                townData.districts[district.name] = district.count || 1;
+            }
+        }
+        
+        return townData;
+    }
+    
+    // Helper function to capture the map as an image
+    function captureMapImage() {
+        // Try to get the canvas from the OpenFL content
+        const canvas = document.querySelector('#openfl-content canvas');
+        if (!canvas) {
+            throw new Error("Canvas not found");
+        }
+        
+        // Convert the canvas to a data URL
+        try {
+            return canvas.toDataURL('image/png');
+        } catch (error) {
+            console.error("Error capturing canvas:", error);
+            throw new Error("Failed to capture map image");
+        }
+    }
+})();
