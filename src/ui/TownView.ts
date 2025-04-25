@@ -53,7 +53,7 @@ export class TownGeneratorView extends ItemView {
             <div>Initializing generator...</div>
         `;
         
-        // Set up message listener
+        // Set up message listener for communication with the iframe
         window.addEventListener('message', this.handleMessage.bind(this));
         
         // Create controls
@@ -141,7 +141,7 @@ export class TownGeneratorView extends ItemView {
         generateBtn.addEventListener('click', () => {
             const selectedOption = JSON.parse(sizeSelector.value);
             const size = Math.floor(selectedOption.min + 
-                              Math.random() * (selectedOption.max - selectedOption.min + 1));
+                          Math.random() * (selectedOption.max - selectedOption.min + 1));
             this.generateTown(size, -1); // -1 for random seed
         });
         
@@ -187,13 +187,16 @@ export class TownGeneratorView extends ItemView {
         // Generate a random seed if none provided
         if (seed === -1) {
             seed = Math.floor(Math.random() * 1000000);
+            this.currentSeed = seed;
         }
         
         // Send message to OpenFL app
         this.iframe.contentWindow?.postMessage({
             type: 'generateTown',
             size: size,
-            seed: seed
+            seed: seed,
+            showLabels: this.plugin.settings.showLabels,
+            palette: this.plugin.settings.defaultPalette
         }, '*');
     }
 
@@ -231,7 +234,7 @@ export class TownGeneratorView extends ItemView {
         }
         
         try {
-            // Generate town name (you can enhance this)
+            // Generate town name
             const townType = this.getTownTypeName(this.currentSize);
             const townName = this.generateTownName();
             const fileName = `${townName} - ${townType}.md`;
@@ -282,7 +285,7 @@ export class TownGeneratorView extends ItemView {
     }
 
     private generateTownName(): string {
-        // Simple name generator - improve as desired
+        // Simple name generator
         const prefixes = ["North", "South", "East", "West", "New", "Old", "High", "Low", "Great"];
         const roots = ["bridge", "haven", "ford", "crest", "vale", "shire", "wood", "field", "ton", "wick", "mouth", "dale"];
         
